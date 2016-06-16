@@ -1,0 +1,79 @@
+<h2 class="grey">Daftar Seminar</h2>
+
+<link href="/../css/dataTables.bootstrap.css" rel="stylesheet">
+
+<div class="container">
+	<div class="table-responsive">
+		<table class="table table-bordered" id="dataTables">
+            <thead>
+            <tr>
+                <th width="4%">No</th>
+                <th width="44%">Detil</th>
+                <th width="15%">Privasi</th>
+                <th width="12%">Status</th>
+                <th width="25%">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% for(var i = 0; i < data.length; i++) { 
+            	day = data[i].waktu.toLocaleDateString();
+            	time = data[i].waktu.toLocaleTimeString();
+            	daynow = new Date().toLocaleDateString();
+
+            	if((day == daynow)&&(data[i].status == 0)){
+            		style = "rowgreen";
+	            	status = "<b>Siap Dimulai</b>";
+	            	button = "<a href='/seminar/batal/"+data[i].id_seminar+"' class='btn btn-default btn-hover-red'>Batalkan</a>";
+	            	button += "<a href='/seminar/mulai/"+data[i].id_seminar+"' class='btn btn-default btn-hover-green'>Mulai Sekarang</a>";
+            	} else {
+            		if(data[i].status == 0){
+	            		style = "rowwhite";
+	            		status = "<b>Belum Mulai</b>";
+	            		button = "<a href='/seminar/batal/"+data[i].id_seminar+"' class='btn btn-default btn-hover-red'>Batalkan</a>";
+	            		button += "<a href='/seminar/update/"+data[i].id_seminar+"' class='btn btn-default btn-hover-blue'>Update</a>";
+	            	} else if(data[i].status == 1){
+	            		style = "rowblue";
+	            		status = "<b>Selesai</b>";
+	            		button = "<a href='/seminar/buka/"+data[i].id_seminar+"' class='btn btn-default btn-hover-blue'>Buka Sesi Baru</a>";
+	            	} else if(data[i].status == 2){
+	            		style = "rowred";
+	            		status = "<b>Dibatalkan</b>";
+	            		button = "<a href='/seminar/hapus/"+data[i].id_seminar+"' class='btn btn-default btn-hover-red'>Hapus</a>";
+	            		button += "<a href='/seminar/buka/"+data[i].id_seminar+"' class='btn btn-default btn-hover-blue'>Buka Sesi Baru</a>";
+	            	} else if(data[i].status == 3){
+                        style = "rowgreen";
+                        status = "<b>Sedang Dimulai</b>";
+                        button = "<a href='/seminar/batal/"+data[i].id_seminar+"' class='btn btn-default btn-hover-red'>Batalkan</a>";
+                        button += "<a href='/seminar/selesai/"+data[i].id_seminar+"' class='btn btn-default btn-hover-blue'>Sudah Selesai</a>";
+                        button += "<a href='/seminar/mulai/"+data[i].id_seminar+"' class='btn btn-default btn-hover-green'>Mulai Lagi</a>";
+                    }
+            	}
+            	if(data[i].level == 1){
+            		privasi = "Umum / Terbuka <br>";
+            	} else {
+            		privasi = "Private / Tertutup <br><br><b>Key: </b>"+data[i].key;
+            		// privasi = "Private / Tertutup <br><br><b>Key: </b>"+data[i].key+"<br><br><a href='/seminar/key-request/"+data[i].key+"' class='btn btn-default btn-hover-green'>Berikan <b>Key</b></a>";
+            	}
+            %>
+                <tr class="<%= style %>">
+                    <td><%= (i+1) %></td>
+                    <td><b>Judul:</b> <%= data[i].judul %><br><b>Topik:</b> <%= data[i].topik %><br><b>Deskripsi:</b> <%= data[i].deskripsi %><br><br>
+                    <b>Waktu:</b> <%= day+" "+time %> WIB<br></td>
+                    <td><%- privasi %></td>
+                    <td><%- status %></td>
+                    <td><%- button %></td>
+                </tr>
+            <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="/../js/jquery-1.10.2.js"></script>
+<script src="/../js/jquery.dataTables.js"></script>
+<script src="/../js/dataTables.bootstrap.js"></script>
+<script>
+	$(document).ready(function() {
+	    $('#dataTables').dataTable();
+	});
+</script>

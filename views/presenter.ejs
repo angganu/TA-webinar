@@ -1,0 +1,16 @@
+<%- include layout/header.ejs %>
+
+    <div class="col-sm-9 left-panel">
+    	<div id="LoadContent">
+            <%if (sesi.menu == 'list') { %>
+                <%- include seminar/listseminar.ejs %>
+            <% } else { %>
+                <%- include seminar/newseminar.ejs %>
+            <% } %>
+        </div>
+    </div>
+    <div class="col-sm-3 right-panel">
+    	<%- include seminar/menu.ejs %>
+    </div>
+
+<%- include layout/footer.ejs %>

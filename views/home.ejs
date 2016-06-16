@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title><%= page_title %></title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0.0">
+        <link href="/../css/bootstrap.css" rel="stylesheet">
+        <link href="/../css/font-awesome.css" rel="stylesheet">
+        <link href="/../css/style.css" rel="stylesheet">
+    </head>
+    <body class="home-body">
+        <div class="col-sm-9 left-panel">
+		    <link rel="stylesheet" href="/../css/nivo-slider.css" type="text/css" media="screen" />
+		    <div class="slider-wrapper theme-default">
+	            <div id="slider" class="nivoSlider">
+	                <img src="/../images/1.png" data-thumb="/../images/1.jpg" alt="" />
+	                <img src="/../images/2.png" data-thumb="/../images/2.jpg" alt="" /> <!--title="This is an example of a caption"-->
+	                <img src="/../images/3.png" data-thumb="/../images/3.jpg" alt="" />
+	                <img src="/../images/4.png" data-thumb="/../images/4.jpg" alt="" />
+	            </div>
+	        </div>
+		    <script type="text/javascript" src="/../js/jquery-1.9.0.min.js"></script>
+		    <script type="text/javascript" src="/../js/jquery.nivo.slider.js"></script>
+		    <script type="text/javascript">
+		    $(window).load(function() {
+		        $('#slider').nivoSlider();
+		    });
+		    </script>
+        </div>
+        <div class="col-sm-3 right-panel">
+        	<img src="/../images/logo.png" class="logo">
+            <div class="panel welcome">
+                <h3 align="center"><b>Selamat Datang</b></h3>
+                <p align="center"><b>Website Seminar Online <br>- Tiens Group -</b></p>
+            </div>
+            <font color="red" size="2"><%= notif.login_notif %></font>
+            <font color="red" size="2"><%= notif.regist_notif %></font>
+        	<div class="panel login" id="loginpan">
+        		<p class="title">Login</p>
+        		<form method="post" action="/login">
+        			<table align="center" width="100%">
+        				<tr>
+        					<td>Username</td><td> : </td><td><input type="text" name="username" class="form-control input-min" required></td>
+        				</tr>
+        				<tr>
+        					<td>Password</td><td> : </td><td><input type="password" name="password" class="form-control input-min" required></td>
+        				</tr>
+        			</table>
+                    <a href="#" style="float:left;" class="btn btn-success" onclick="swiftpan('reg')">Register</a>
+        			<input type="submit" name="submit" class="btn btn-default" value="Login" style="float:right;">
+                    <a href="#" style="float:right; margin:15px 10px 0 0;">Lupa Password ?</a>
+        			<br>
+        		</form>
+        	</div>
+        	<div class="panel register" id="registerpan">
+        		<p class="title">Register</p>
+        		<form method="post" action="/register">
+        			<table align="center" width="100%">
+        				<tr>
+        					<td>Email</td><td> : </td><td><input type="email" name="email" class="form-control input-min" required></td>
+        				</tr>
+        				<tr>
+        					<td>Username</td><td> : </td><td><input type="text" name="username" class="form-control input-min" required></td>
+        				</tr>
+        				<tr>
+        					<td>Password</td><td> : </td><td><input type="password" name="password" class="form-control input-min" required></td>
+        				</tr>
+        			</table>
+                    <a href="#" style="float:left;" class="btn btn-default" onclick="swiftpan('log')">Login</a>
+        			<input type="submit" class="btn btn-success" value="Register" style="float:right;">
+        		</form>
+        	</div>
+        	<hr>
+        	<div align="center">
+        		<h4><b>Group Company</b></h4>
+        		<a href="#"><img src="/../images/logo.png" class="min-logo"></a>
+        		<a href="#"><img src="/../images/logo.png" class="min-logo"></a>
+        		<a href="#"><img src="/../images/logo.png" class="min-logo"></a>
+        	</div>
+        </div>
+        
+    <script type="text/javascript">
+        $("#registerpan").hide();
+        function swiftpan(val) {
+            if(val == "reg") {
+                $("#loginpan").hide();
+                $("#registerpan").show();
+            } else {
+                $("#loginpan").show();
+                $("#registerpan").hide();
+            }
+        }
+    </script>
+
+    </body>
+</html>

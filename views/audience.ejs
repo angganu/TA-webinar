@@ -1,0 +1,105 @@
+<%- include layout/header.ejs %>
+
+<link href="/../css/fullcalendar.css" rel="stylesheet" />
+<script type="text/javascript" src="/../js/jquery-2.1.1.min.js"></script>
+<script type="text/javascript" src="/../js/jquery-ui.min.js"></script>
+<script type="text/javascript" src="/../js/fullcalendar.min.js"></script>
+
+    <div class="col-sm-9 left-panel">
+        <div class="col-sm-4 panel panel-default detilseminar" id="detilseminar"><p class='title green'><%- sesi.booking %></p></div>
+        <div class="col-sm-8">
+            <div id='calendar'></div>
+        </div>
+    </div>
+    <div class="col-sm-3 right-panel">
+        <div class="panel side">
+            <p class="title">Selamat Datang <br> <%= sesi.username %></p>
+            <div class="line"></div>
+            <a href="/logout" class="btn btn-default" style="float:right;">LogOut</a>
+            <a href="/profile" class="btn btn-default">Profile</a>
+        </div>
+        <div class="panel white">
+            <p class="title">Booked Seminar</p>
+            <div class="line"></div>
+            <p>Seminar Hari Ini..</p>
+            <ul class="liststyle">
+            <% for(var i = 0; i < listbook.length; i++) { 
+                if(listbook[i].status == 3){
+                    butt = "<a href='/seminar/masuk/"+listbook[i].id_seminar+"' class='btn btn-mini btn-primary'>Masuk!</a>";
+                } else {
+                    butt = "";
+                }
+            %>
+                <li>
+                    <%- butt %>
+                    <%= listbook[i].waktu.toLocaleDateString()+" "+listbook[i].waktu.toLocaleTimeString() %><br>
+                    <%= listbook[i].judul %>
+                </li>
+            <% } %>
+            </ul>
+            <a href="/seminar/booked/<%= sesi.username %>" class="btn btn-success">Lihat Semua</a>
+        </div>
+    </div>
+
+<%- include layout/footer.ejs %>
+
+<script>
+$(function () {
+    $('#calendar').fullCalendar({
+        header: {
+            left: 'prev,next today',
+            center: 'title'
+        },
+        editable: false,
+        events: [
+        <% for(var i = 0; i < data.length; i++) {
+            time = data[i].waktu.toLocaleDateString()+" "+data[i].waktu.toLocaleTimeString().substr(0,5);
+            if(data[i].opened == 0){
+                ecolor = '#7777ff';
+            } else {
+                ecolor = '#77ff77';
+            }
+        %>
+          {
+            id: '<%= data[i].id_seminar %>',
+            title: '<%= data[i].judul %>',
+            start: '<%= time %>',
+            url: '#',
+            topik: '<%= data[i].topik %>',
+            deskripsi: '<%= data[i].deskripsi %>',
+            level: '<%= data[i].level %>',
+            key: '<%= data[i].key %>',
+            iduser: '<%= sesi.iduser %>',
+            color: '<%= ecolor %>',
+            allDay: true
+          },
+        <% } %>
+        ],
+        eventClick: function(event,jsEvent,view) {  
+            res = "<p class='title green'>Detil Seminar</p>";
+            res += "<b>Judul Seminar :</b><p class='pad'>"+event.title+"</p>";
+            res += "<b>Topik Seminar :</b><p class='pad'>"+event.topik+"</p>";
+            res += "<b>Deskripsi Seminar :</b><p class='pad'>"+event.deskripsi+"</p>";
+            res += "<div class='green' align='center'><b>Waktu :</b><p class='pad'><b class='textmin'>"+event.start+"</b><br><b class='texttime'>( "+event.start.toLocaleDateString()+" "+event.start.toLocaleTimeString().substr(0,5)+" WIB )</b></p></div>";
+            // res += "<b>Penyelenggara :</b><p class='pad'>"+event.penyelenggara+"</p>";
+            //    if(event.pembicara != "" || event.pembicara != undefined){
+            //        res += "<b>Pembicara :</b><p class='pad'>"+event.pembicara+"</p>";
+            //    }
+            res += "<div class='line'></div>";
+            res += "<form method='post' action='/seminar/join' align='center'>";
+            res += "<input type='hidden' name='idseminar' value='"+event.id+"'>";
+            res += "<input type='hidden' name='iduser' value='"+event.iduser+"'>";
+            res += "<input type='hidden' name='key' value='"+event.key+"'>";
+                if(event.level == 0){
+                    res += "Seminar ini memerlukan kode kunci <b>(key)</b>.";
+                    res += "<input type='text' class='form-control' name='kode' required><br>";
+                } else {
+                    res += "<input type='hidden' name='kode' value='"+event.key+"'>";
+                }
+            res += "<input type='submit' class='btn btn-success' value='Ikuti Seminar !'></form>"
+            res += "<br>";
+            $("#detilseminar").html(res);
+        },
+    });
+});
+</script>

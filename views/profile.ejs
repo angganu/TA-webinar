@@ -1,0 +1,134 @@
+<%- include layout/header.ejs %>
+
+    <div class="col-sm-9 left-panel">
+    	<div id="LoadContent">
+
+		<h2 class="grey">Profile</h2>
+			
+			<link href="/css/datepicker.css" rel="stylesheet">
+		    <link href="/css/bootstrap-datetimepicker.css" rel="stylesheet">
+
+			<script type="text/javascript" src="/js/jquery-2.1.1.min.js"></script>
+			<script type="text/javascript" src="/js/moment-with-locales.js"></script>
+			<script type="text/javascript" src="/js/bootstrap-datetimepicker.js"></script>
+			<style>
+				input[type=number]::-webkit-inner-spin-button, 
+				input[type=number]::-webkit-outer-spin-button { 
+				  -webkit-appearance: none; 
+				  margin: 0; 
+				}
+			</style>
+		<div class="container">
+			<form method="post" action="/updprof" enctype="multipart/form-data">
+				<div class="col-sm-4">
+					<label>Photo Profile</label>
+					<% if(data[0].photo != ""){ %>
+						<img src="images/photo/<%= data[0].photo %>" width="100%">
+					<% } else { %>
+						<img src="images/user.png" width="100%">
+					<% } %>
+					<input type="hidden" name="old_photo" value="<%= data[0].photo %>">
+					<input type="file" name="photo" class="input-form form-control">
+				</div>
+				<div class="col-sm-8">
+					<label>Nama Lengkap</label>
+					<input type="text" name="nama" class="input-form form-control" value="<%= data[0].nama_lengkap %>">
+					<div class="row">
+						<div class="col-sm-6">
+							<label>Tanggal Lahir</label>
+				            <div class="form-group">
+				                <div class='input-group date' id='datetimepicker'>
+				                    <input type='text' name="tgl_lahir" id="datetime" class="form-control" />
+				                    <span class="input-group-addon">
+				                        <span class="fa fa-calendar"></span>
+				                    </span>
+				                </div>
+				            </div>
+				        </div>
+				        <div class="col-sm-6">
+				        	<label>Jenis Kelamin</label>
+			                <select name="kelamin" class="input-form form-control">
+			                <%- (data[0].jenis_kelamin == "Pria")? "<option value='Pria' selected>Pria" : "<option value='Pria'>Pria" %>
+			                <%- (data[0].jenis_kelamin == "Wanita")? "<option value='Wanita' selected>Wanita" : "<option value='Wanita'>Wanita" %>
+			                </select>
+				        </div>
+			        </div>
+			        <div class="row">
+						<div class="col-sm-6">
+							<label>Agama</label>
+				            <input type="text" name="agama" class="input-form form-control" value="<%= data[0].agama %>">
+				        </div>
+				        <div class="col-sm-6">
+				        	<label>Telepon</label>
+				        	<div class="form-group">
+				                <div class='input-group date' id='datetimepicker'>
+				                    <span class="input-group-addon">
+				                        <span >+62</span>
+				                    </span>
+				                    <input type="number" name="telepon" class="form-control" value="<%= data[0].telepon %>">
+				                </div>
+				            </div>
+				        </div>
+			        </div>
+			        <label>Alamat Lengkap</label>
+			        <textarea name="alamat" rows="5" class="input-form form-control"><%= data[0].alamat_lengkap %></textarea>
+					<input type="submit" name="submit" class="btn btn-success btn-width" value="Update Profile" style="float:right">
+					<button type="reset" class="btn btn-default">Batal</button>
+				</div>
+			</form>
+		</div>
+		<br>
+		<h5 class="grey">Ubah Password</h5>
+		<div class="container">
+			<form method="post" action="/updpass" enctype="multipart/form-data">
+				<div class="col-sm-3">
+					<input type="password" name="old_pass" class="input-form form-control" placeholder="Password Lama">
+				</div>
+				<div class="col-sm-3">
+					<input type="password" name="new_pass" class="input-form form-control" placeholder="Password Baru">
+				</div>
+				<div class="col-sm-3">
+					<input type="password" name="con_pass" class="input-form form-control" placeholder="Konfirmasi Password Baru">
+				</div>
+				<div class="col-sm-3">
+					<input type="submit" name="submit" class="btn btn-danger " value="Ubah Password">
+				</div>
+			</form>
+			<br><br>
+			<div class="note">
+				<b>Catatan : </b>
+				<p>Anda akan diminta untuk Login ulang apabila merubah password !</p>
+			</div>
+		</div>
+
+		<script type="text/javascript">
+		    $(function () {
+		        $('#datetimepicker').datetimepicker({
+				    maxDate: moment(),
+				    date: '<%= data[0].tgl_lahir %>',
+				    format: 'YYYY-MM-DD'
+				});
+		    });
+		</script>
+
+        </div>
+    </div>
+    <div class="col-sm-3 right-panel">
+    <% if(sesi.level == 1){ %>
+    	<%- include seminar/menu.ejs %>
+    <% } else { %>
+    	<div class="panel side">
+    		<p class="title">Selamat Datang <br> <%= sesi.username %></p>
+    		<div class="line"></div>
+    		<a href="/logout" class="btn btn-default" style="float:right;">LogOut</a>
+    		<a href="/profile" class="btn btn-default">Profile</a>
+    	</div>
+    	<div class="panel white">
+    		<p class="title">Menu Seminar</p>
+    		<div class="line"></div>
+    		<a href="/audience" class="btn btn-default buttonmenu">Halaman Utama</a>
+    	</div>
+    <% } %>
+    </div>
+
+<%- include layout/footer.ejs %>

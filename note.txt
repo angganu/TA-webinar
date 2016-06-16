@@ -1,0 +1,15 @@
+
+/viewer			-> /audience
+/public/upload		-> /public/presentations
+/presenter/main		-> /presenter
+/presenter/upload	-> /upload
+
+
+
+
+
+
+
+
+
+

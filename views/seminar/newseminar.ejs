@@ -1,0 +1,63 @@
+<h2 class="grey">Seminar Baru</h2>
+	
+	<link href="/../css/datepicker.css" rel="stylesheet">
+    <link href="/../css/bootstrap-datetimepicker.css" rel="stylesheet">
+
+	<script type="text/javascript" src="/../js/jquery-2.1.1.min.js"></script>
+	<script type="text/javascript" src="/../js/moment-with-locales.js"></script>
+	<script type="text/javascript" src="/../js/bootstrap-datetimepicker.js"></script>
+
+<div class="container">
+	<form method="post" action="/upload" enctype="multipart/form-data">
+		<div class="col-sm-6">
+			<label>Judul Seminar</label>
+			<input type="text" name="judul" class="input-form form-control" required>
+			<label>Topik Seminar</label>
+			<input type="text" name="topik" class="input-form form-control" required>
+			<label>Deskripsi Seminar</label>
+			<textarea name="deskripsi" rows="4" class="input-form form-control" required></textarea>
+		</div>
+		<div class="col-sm-6">
+			<label>Pilih File Presentasi <font color="red">(.ppt)</font></label>
+			<input type="file" name="pptFile" class="input-form form-control" required>
+			<label>Status Seminar</label>
+			<select name="openstat" class="input-form form-control" required>
+				<option value="1">Umum / Terbuka
+				<option value="0">Private / Tertutup
+			</select>
+			<label>Waktu Seminar</label>
+            <div class="form-group">
+                <div class='input-group date' id='datetimepicker'>
+                    <input type='text' name="datetime" id="datetime" class="form-control" required/>
+                    <span class="input-group-addon">
+                        <span class="fa fa-calendar"></span>
+                    </span>
+                </div>
+            </div>
+			<!--
+			<label>Penyelenggara</label>
+			<input type="text" name="penyelenggara" class="input-form form-control" value="Tiens Syariah Bandung" required>
+			<label>Pembicara (optional) <font color="blue" size="1">(Pisahkan dengan koma [ , ] bila pembicara lebih dari satu)</font></label>
+			<textarea name="pembicara" rows="2" class="input-form form-control"></textarea>
+			-->
+			<input type="submit" name="submit" class="btn btn-success btn-width" value="Upload" style="float:right">
+			<button type="reset" class="btn btn-default">Batal</button>
+		</div>
+	</form>
+</div>
+<br><br>
+<div class="note">
+	<b>Catatan : </b>
+	<ul>
+		<li>Waktu seminar berdasarkan Waktu Indonesia Bagian Barat (<b>WIB</b>).</li>
+		<li>File Presentasi (<b>.ppt</b>) akan di konversi kedalam bentuk <b>gambar</b> pada saat melaksanakan presentasi seminar.</li>
+		<li>Status <b>Private / Tertutup</b> memerlukan kunci (<b>Key</b>) untuk Audience agar dapat mengikuti seminar. <b>Key</b> ini akan diBuat secara otomatis untuk setiap judul seminar.</li>
+	</ul>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('#datetimepicker').datetimepicker({
+		    minDate: moment()
+		});
+    });
+</script>
