@@ -1,0 +1,133 @@
+<%- include ../layout/header.ejs %>
+
+    <style>
+    audio,
+    video {
+        -moz-transition: all 1s ease;
+        -ms-transition: all 1s ease;
+        -o-transition: all 1s ease;
+        -webkit-transition: all 1s ease;
+        transition: all 1s ease;
+        vertical-align: top;
+    }
+    .video{
+        height: 100px !important;
+        margin-top: 10px;
+    }
+    </style>
+
+    <div class="col-sm-9 left-panel">
+        <div id="LoadContent" class="col-md-6">
+            <div class="slide" id="slide" style="border: 1px solid black; width: 100%; height: 350px;repeat: no-repeat; margin-top:10px; margin-bottom: 5px;"></div>
+            <input type="hidden" id="docId" value="<%= data[0].id_seminar %>">
+            <input type="hidden" id="docKey" value="<%= data[0].key %>">
+            <input type="button" id="prev" class="btn btn-default" value="PREVIOUS">
+            <input type="button" id="next" class="btn btn-default" value="NEXT">
+        </div>
+        <div class="col-md-6">
+            <div id="videos" style="border: 1px solid black; width: 480px; height: 350px;repeat: no-repeat; margin-top:10px"></div>
+        </div>
+        <div class="clear"><br></div>
+        <div class="col-md-6">
+            <div id="content" class="mess-content"></div>
+            <input type="hidden" id="name" value="<%= sesi.username %>">
+            <input type="button" id="send" class="btn btn-primary pull-right" value="Kirim">
+            <input type="text" id="field" class="form-control chat-input">
+        </div>
+        <div class="col-md-6">
+            <div class="userpan" id="users">
+                <div class="inuser">
+                    <p align="center"><b>Daftar Hadir Audience</b></p>
+                    <b>Pendaftar : <len id="len">0</len></b><br>
+                    <b>Online : <num id="num">0</num></b>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 right-panel">
+        <div class="panel side">
+            <p class="title">Selamat Datang <br> <%= sesi.username %></p>
+            <div class="line"></div>
+            <a href="/logout" class="btn btn-default" style="float:right;">LogOut</a>
+            <a href="/profile" class="btn btn-default">Profile</a>
+        </div>
+        <div class="panel white">
+            <a href="/seminar/selesai/<%= data[0].id_seminar %>" class="btn btn-default buttonmenu">Tutup Seminar</a>
+        </div>
+    </div>
+
+    <script src="/js/jquery-1.11.1.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/show.js"></script>
+    <script src="/js/chat.js"></script>
+    <script src="/js/RTCMultiConnection.js"></script>
+    <script src="/js/firebase.js"></script>
+
+    <script>
+    var videos = document.querySelector('#videos');
+
+    window.onload = function() {
+        this.disabled = true;
+        
+        <% if(sesi.level == 1){ %>
+            var role = 'Presenter';
+        <% } else { %>
+            var role = 'Audience';
+        <% } %>
+
+        window.connection = new RTCMultiConnection();
+
+        // dont-override-session allows you force RTCMultiConnection
+        // to not override default session of participants;
+        // by default, session is always overridden and set to the session coming from initiator!
+        connection.dontOverrideSession = true;
+
+        connection.session = {
+            audio: true,
+            video: true,
+            oneway: role == 'Audience'
+        };
+
+        connection.onstream = function(e) {
+            videos.appendChild(e.mediaElement);
+
+            if (e.type == 'remote') {
+                // because "viewer" joined room as "oneway:true"
+                // initiator will NEVER share participants
+                // to manually ask for participants;
+                // call "askToShareParticipants" method.
+                connection.askToShareParticipants();
+            }
+
+            // if you're moderator
+            // if stream-type is 'remote'
+            // if target user is broadcaster!
+            if (connection.isInitiator && e.type == 'remote' && !e.session.oneway) {
+                // call "shareParticipants" to manually share participants with all connected users!
+                connection.shareParticipants({
+                    dontShareWith: e.userid
+                });
+            }
+        };
+
+        connection.onNewSession = function(session) {
+            if (role == 'Audience') {
+                session.join({
+                    oneway: true
+                });
+            } else {
+                session.join();
+            }
+        };
+
+        if (role == 'Presenter')
+            connection.open({
+                sessionid: connection.channel,
+                captureUserMediaOnDemand: false
+            });
+        else
+            connection.connect(connection.channel);
+    };
+    </script>
+
+<%- include ../layout/footer.ejs %>

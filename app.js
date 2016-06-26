@@ -36,6 +36,7 @@ var home        = require('./routes/home');
 // all environments
 app.configure(function(){
     app.set('port', process.env.PORT || NodePort);
+    app.set('ipadd', process.env.IP || "192.168.1.100");
     app.set('views', path.join(__dirname, 'views'));
     app.set('view engine', 'ejs');
     // app.use(express.favicon());
@@ -84,8 +85,9 @@ app.get('/profile/:username', function(req,res){ userlog.profile(req,res); });
 app.get('/presenter', function(req,res){ presenter.main(req,res); });
 app.get('/audience', function(req,res){ audience.main(req,res); });
 app.get('/seminar/mulai/:id', function(req,res){ seminar.mulai(req,res); });
-app.get('/seminar/presenter/:id', function(req,res){ seminar.presenter(req,res); });
-app.get('/seminar/audience/:id', function(req,res){ seminar.audience(req,res); });
+app.get('/seminar/:id', function(req,res){ seminar.show(req,res); });
+// app.get('/seminar/presenter/:id', function(req,res){ seminar.presenter(req,res); });
+// app.get('/seminar/audience/:id', function(req,res){ seminar.audience(req,res); });
 app.get('/seminar/selesai/:id', function(req,res){ seminar.selesai(req,res); });
 app.get('/seminar/buka/:id', function(req,res){ seminar.buka(req,res); });
 app.get('/seminar/batal/:id', function(req,res){ seminar.batal(req,res); });
@@ -108,10 +110,9 @@ app.get('/seminar/masuk/:id', function(req,res){
             } else {
                 app.set('id_seminar',id);
                 connection.query('SELECT data_user.photo,audience.id_seminar,audience.username,audience.status FROM audience JOIN data_user ON data_user.username=audience.username WHERE audience.id_seminar = ?',[id], function(err, audi){
-                    console.log(audi);
                     io.sockets.emit('userspic', { audi });
                 });
-                res.redirect('/seminar/audience/'+id);
+                res.redirect('/seminar/'+id);
             }
         });
     });
@@ -126,7 +127,6 @@ app.get('/keluar/:id/:us', function(req,res){
                 console.log("Error Selecting : %s ",err );
             } else {
                 connection.query('SELECT data_user.photo,audience.id_seminar,audience.username,audience.status FROM audience JOIN data_user ON data_user.username=audience.username WHERE audience.id_seminar = ?',[id], function(err, audi){
-                    console.log(audi);
                     io.sockets.emit('userspic', { audi });
                 });
                 res.redirect('/audience');
@@ -165,8 +165,8 @@ app.get('/seminar/move/:id/:key/:index', function (req, res) {
 });
 
 
-var server = http.createServer(app).listen(app.get('port'), function(){
-    console.log('Express server listening on port ' + app.get('port'));
+var server = http.createServer(app).listen(app.get('port'), app.get('ipadd'), function() {
+    console.log('Application Start On : ' + app.get('ipadd') + ":" + app.get('port'));
 });
 
 var io = socketio.listen(server);
@@ -183,4 +183,22 @@ var clientHandler = io.of('/seminar/audience/'+app.get('id_seminar')).on('connec
     socket.emit('move', {imgSrc : presenter.getCurrentImage } );
 });
 
+
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+
+// open mysql console
+mysql -u root -p
+
+// kill proses node
+ps aux | grep node
+kill -9 PROCESS_ID
+killall node
+
+// git update
+
+
+*/

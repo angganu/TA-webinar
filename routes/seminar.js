@@ -14,23 +14,39 @@ var current_image;
 // 2 : Dibatalkan
 // 3 : Sedang Mulai
 
-exports.presenter = function(req, res) {
-    sesi = req.session;
-    var id = req.params.id;
-    var sesi = {
-        iduser : sesi.iduser,
-        username : sesi.username,
-        level : sesi.level
-    };
-    req.getConnection(function (err, connection) {
-        var query = connection.query('SELECT * FROM seminar WHERE id_seminar = ? ',[id], function(err, rows){
-            key = rows[0].key;
-            res.render('presenters/show', {page_title:"Tiens Webinar",sesi,data:rows,uniqueKey:key});
-        });
-    });
-};
+// exports.presenter = function(req, res) {
+//     sesi = req.session;
+//     var id = req.params.id;
+//     var sesi = {
+//         iduser : sesi.iduser,
+//         username : sesi.username,
+//         level : sesi.level
+//     };
+//     req.getConnection(function (err, connection) {
+//         var query = connection.query('SELECT * FROM seminar WHERE id_seminar = ? ',[id], function(err, rows){
+//             key = rows[0].key;
+//             res.render('presenters/show', {page_title:"Tiens Webinar",sesi,data:rows,uniqueKey:key});
+//         });
+//     });
+// };
 
-exports.audience = function(req, res) {
+// exports.audience = function(req, res) {
+//     sesi = req.session;
+//     var id = req.params.id;
+//     var sesi = {
+//         iduser : sesi.iduser,
+//         username : sesi.username,
+//         level : sesi.level
+//     };
+//     req.getConnection(function (err, connection) {
+//         var query = connection.query('SELECT * FROM seminar WHERE id_seminar = ? ',[id], function(err, rows){
+//             key = rows[0].key;
+//             res.render('audiences/show', {page_title:"Tiens Webinar",sesi,data:rows,uniqueKey:key});
+//         });
+//     });
+// };
+
+exports.show = function(req, res) {
     sesi = req.session;
     var id = req.params.id;
     var sesi = {
@@ -41,7 +57,7 @@ exports.audience = function(req, res) {
     req.getConnection(function (err, connection) {
         var query = connection.query('SELECT * FROM seminar WHERE id_seminar = ? ',[id], function(err, rows){
             key = rows[0].key;
-            res.render('audiences/show', {page_title:"Tiens Webinar",sesi,data:rows,uniqueKey:key});
+            res.render('seminar/show', {page_title:"Tiens Webinar",sesi,data:rows,uniqueKey:key});
         });
     });
 };
@@ -61,20 +77,20 @@ exports.upload = function(req, res) {
 
             var id = new Date().getTime();
             var command = 'java -jar ' + JAR_PATH + ' ' +UPLOAD_PATH + fileName+' '+ UPLOAD_PATH + id;
-            console.log('Command: '+ command);
-            child = exec(command, function(error, stdout, stderr) {
-                // console.log(stdout);
-                // console.log(stderr);
-                // sys.print('stdout:' + stdout);
-                // sys.print('stderr:' + stderr);
-                // Delete file PPT
+            // console.log('Command: '+ command);
+            /*child = exec(command, function(error, stdout, stderr) {
+                console.log(stdout);
+                console.log(stderr);
+                sys.print('stdout:' + stdout);
+                sys.print('stderr:' + stderr);
+                Delete file PPT
                 fs.unlink(destination, function(error) {
                     if(error) {
                         console.log('delete fail');
                     }
                     console.log('successfully delete file, '+ destination);
                 });
-            });
+            });*/
 
             // Insert To DB
             var input = JSON.parse(JSON.stringify(req.body));
@@ -159,19 +175,19 @@ exports.update = function(req, res) {
                 // Masukan Gambar Baru
                 var command = 'java -jar ' + JAR_PATH + ' ' +UPLOAD_PATH + fileName+' '+ UPLOAD_PATH + key;
                 // console.log('Command: '+ command);
-                child = exec(command, function(error, stdout, stderr) {
-                    // console.log(stdout);
-                    // console.log(stderr);
-                    // sys.print('stdout:' + stdout);
-                    // sys.print('stderr:' + stderr);
-                    // Delete file PPT
-                    fs.unlink(destination, function(error) {
-                        if(error) {
-                            console.log('delete fail');
-                        }
-                        console.log('successfully delete file, '+ destination);
-                    });
-                });
+                // child = exec(command, function(error, stdout, stderr) {
+                //     console.log(stdout);
+                //     console.log(stderr);
+                //     sys.print('stdout:' + stdout);
+                //     sys.print('stderr:' + stderr);
+                //     Delete file PPT
+                //     fs.unlink(destination, function(error) {
+                //         if(error) {
+                //             console.log('delete fail');
+                //         }
+                //         console.log('successfully delete file, '+ destination);
+                //     });
+                // });
 
                 // Insert To DB
                 req.getConnection(function (err, connection) {
@@ -336,7 +352,7 @@ exports.mulai = function(req,res){
             if(err){
                 console.log("Error Selecting : %s ",err );
             } else {
-                res.redirect('/seminar/presenter/'+id);
+                res.redirect('/seminar/'+id);
             }
         });
     });
