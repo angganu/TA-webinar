@@ -78,19 +78,19 @@ exports.upload = function(req, res) {
             var id = new Date().getTime();
             var command = 'java -jar ' + JAR_PATH + ' ' +UPLOAD_PATH + fileName+' '+ UPLOAD_PATH + id;
             // console.log('Command: '+ command);
-            /*child = exec(command, function(error, stdout, stderr) {
-                console.log(stdout);
-                console.log(stderr);
-                sys.print('stdout:' + stdout);
-                sys.print('stderr:' + stderr);
-                Delete file PPT
+            child = exec(command, function(error, stdout, stderr) {
+                // console.log(stdout);
+                // console.log(stderr);
+                // sys.print('stdout:' + stdout);
+                // sys.print('stderr:' + stderr);
+                // Delete file PPT
                 fs.unlink(destination, function(error) {
                     if(error) {
                         console.log('delete fail');
                     }
                     console.log('successfully delete file, '+ destination);
                 });
-            });*/
+            });
 
             // Insert To DB
             var input = JSON.parse(JSON.stringify(req.body));

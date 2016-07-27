@@ -1,8 +1,8 @@
 window.onload = function() {
 	var messages = []; 
-	var socket = io.connect('http://103.236.201.226:80');
+	// var socket = io.connect('http://103.236.201.158:80');
 	// var socket = io.connect('http://192.168.1.100:8080');
-	// var socket = io.connect('http://localhost:8080');
+	var socket = io.connect('http://localhost:8080');
 	var field = document.getElementById("field");
 	var sendButton = document.getElementById("send");
 	var content = document.getElementById("content");
@@ -26,6 +26,7 @@ window.onload = function() {
 		if(name.value == ""){
 			alert("Please type your name!");
 		} else {
+			alert("Please type your name!");
 			var text = field.value;
 			socket.emit('send', {message:text, username:name.value});
 			field.value = "";

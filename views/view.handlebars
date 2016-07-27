@@ -1,0 +1,69 @@
+<header>
+    <h1><a href="/">PeerCast</a></h1>
+    <ul>
+        <li><a class='login' href="/create">Create a class</a></li>
+        <li><a href="/join">Join Class</a></li>
+    </ul>
+</header>
+
+<div id="hero">
+    <h3>You have joined peer <em id='peer-id'>{{ peer }}</em></h3>
+
+    <video id="their-video" autoplay></video>
+
+</div>
+
+
+<div id='footer'>
+<footer>
+    <a class='login' href="/create">Create a class</a>
+    <p>© Made by <a href='http://www.yosriady.com' target='_blank'>Yos Riady</a> for Mozilla Science Lab</p>
+</footer>
+</div>
+
+<script>
+
+var peer = new Peer({key: '8l0ph78p5vcxr'});
+
+peer.on('open', function(id) {
+  console.log('My peer ID is: ' + id);
+});
+
+var destination_peer_id = $('#peer-id').html();
+var conn = peer.connect(destination_peer_id);
+var call;
+
+peer.on('open', function() {
+    console.log("Open");
+});
+
+peer.on('connection', function(conn) {
+    console.log("A peer has connected!");
+    console.log(conn);
+});
+
+peer.on('call', function(call) {
+  console.log("The class is calling you!");
+  console.log(call);
+
+  call.answer(window.localStream);
+  console.log("Answered call!");
+
+  step3(call);
+});
+
+function step3 (call) {
+      // Hang up on an existing call if present
+      if (window.existingCall) {
+        window.existingCall.close();
+      }
+
+      // Wait for stream on the call, then set peer video display
+      call.on('stream', function(stream){
+        $('#their-video').prop('src', URL.createObjectURL(stream));
+      });
+
+      window.existingCall = call;
+}
+
+</script>

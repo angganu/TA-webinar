@@ -19,15 +19,18 @@
     <div class="col-sm-9 left-panel">
         <div id="LoadContent" class="col-md-6">
             <div class="slide" id="slide" style="border: 1px solid black; width: 100%; height: 350px;repeat: no-repeat; margin-top:10px; margin-bottom: 5px;"></div>
+            <% if(sesi.level == 1){ %>
             <input type="hidden" id="docId" value="<%= data[0].id_seminar %>">
             <input type="hidden" id="docKey" value="<%= data[0].key %>">
             <input type="button" id="prev" class="btn btn-default" value="PREVIOUS">
             <input type="button" id="next" class="btn btn-default" value="NEXT">
+            <% } %>
         </div>
         <div class="col-md-6">
             <div id="videos" style="border: 1px solid black; width: 480px; height: 350px;repeat: no-repeat; margin-top:10px"></div>
         </div>
         <div class="clear"><br></div>
+        <% if(sesi.level == 1){ %>
         <div class="col-md-6">
             <div id="content" class="mess-content"></div>
             <input type="hidden" id="name" value="<%= sesi.username %>">
@@ -43,6 +46,14 @@
                 </div>
             </div>
         </div>
+        <% } else { %>
+        <div class="col-md-12">
+            <div id="content" class="mess-content"></div>
+            <input type="hidden" id="name" value="<%= sesi.username %>">
+            <input type="button" id="send" class="btn btn-primary pull-right" value="Kirim">
+            <input type="text" id="field" class="form-control chat-input">
+        </div>
+        <% } %>
     </div>
     <div class="col-sm-3 right-panel">
         <div class="panel side">
@@ -52,14 +63,21 @@
             <a href="/profile" class="btn btn-default">Profile</a>
         </div>
         <div class="panel white">
+            <% if(sesi.level == 1){ %>
             <a href="/seminar/selesai/<%= data[0].id_seminar %>" class="btn btn-default buttonmenu">Tutup Seminar</a>
+            <% } else { %>
+            <a href="/keluar/<%= data[0].id_seminar %>/<%= sesi.username %>" class="btn btn-default buttonmenu">Keluar Seminar</a>
+            <% } %>
         </div>
     </div>
 
     <script src="/js/jquery-1.11.1.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
+    <% if(sesi.level == 1){ %>
     <script src="/js/show.js"></script>
-    <script src="/js/chat.js"></script>
+    <% } else { %>
+    <script src="/js/client_connect.js"></script>
+    <% } %>
     <script src="/js/RTCMultiConnection.js"></script>
     <script src="/js/firebase.js"></script>
 
@@ -67,6 +85,9 @@
     var videos = document.querySelector('#videos');
 
     window.onload = function() {
+
+    /////////////////////////////////////////////////////////////////////////////////////////////// Streaming Panel
+
         this.disabled = true;
         
         <% if(sesi.level == 1){ %>
@@ -86,6 +107,12 @@
             audio: true,
             video: true,
             oneway: role == 'Audience'
+        };
+
+        connection.onspeaking = function (e) {
+            // e.streamid, e.userid, e.stream, etc.
+            e.mediaElement.style.width = '480px';
+            e.mediaElement.style.height = '348px';
         };
 
         connection.onstream = function(e) {
@@ -127,6 +154,64 @@
             });
         else
             connection.connect(connection.channel);
+
+    ////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////// Chat Panel
+
+    var messages = []; 
+    var socket = io.connect('http://103.236.201.158:80');
+    // var socket = io.connect('http://192.168.1.100:8080');
+    // var socket = io.connect('http://localhost:8080');
+    var field = document.getElementById("field");
+    var sendButton = document.getElementById("send");
+    var content = document.getElementById("content");
+    var name = document.getElementById("name");
+    var field = document.getElementById("field");
+
+    socket.on('message', function(data) {
+        if(data.message) {
+            messages.push(data);
+            var html = '';
+            for(var i=0; i < messages.length; i++){
+                html += '<b>' + (messages[i].username ? messages[i].username : 'Server') + ': </b>';
+                html += messages[i].message + '<br />';
+            }
+            content.innerHTML = html;
+        } else {
+            console.log("There is a problem:", data);
+        }
+    });
+
+    sendButton.onclick = function() {
+        if(field.value == ""){
+            alert("Silahkan Tulis Pesan Terlebih Dahulu.");
+        } else {
+            var text = field.value;
+            socket.emit('send', {message:text, username:name.value});
+            field.value = "";
+        }
+    };
+    $('.mess-content').scrollTop($('.mess-content')[0].scrollHeight);
+
+    ////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////// Audience Panel
+
+    socket.on('userspic', function(data) {
+        raw = "<div class='inuser'><p align='center'><b>Daftar Hadir Audience</b></p><b>Pendaftar : <len id='len'>0</len></b><br><b>Online : <num id='num'>0</num></b></div>";
+        var num=0;
+        for (var i = 0; i < data.audi.length; i++) {
+            if(data.audi[i].status == 1){
+                raw += '<a href="/profile/'+ data.audi[i].username +'" title="'+ data.audi[i].username +'" target="_Blank"><img src="/../images/photo/'+ data.audi[i].photo +'"></a>';
+                num++;
+            }
+        };
+        $('#users').html(raw);
+        $("#len").html(data.audi.length);
+        $("#num").html(num);
+    });
+
+    ////////////////////
+
     };
     </script>
 

@@ -1,11 +1,26 @@
 <%- include ../layout/header.ejs %>
+    
+    <style>
+    audio,
+    video {
+        -moz-transition: all 1s ease;
+        -ms-transition: all 1s ease;
+        -o-transition: all 1s ease;
+        -webkit-transition: all 1s ease;
+        transition: all 1s ease;
+        vertical-align: top;
+    }
+    </style>
+
+    <script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
+    <script src="//cdn.webrtc-experiment.com/firebase.js"></script>
+
     <div class="col-sm-9 left-panel">
         <div id="LoadContent" class="col-md-6">
             <div class="slide" id="slide" style="border: 1px solid black; width: 480px; height: 350px;repeat: no-repeat; margin-top:10px"></div>
         </div>
         <div class="col-md-6">
-            <video id="their-video" autoplay style="margin-top:10px; width:100%;"></video>
-            <input type="hidden" id="peer-id" value="<%= data[0].key %>">
+            <div id="videos"></div>
         </div>
         <div class="clear"><br></div>
         <div class="col-md-12">
@@ -26,52 +41,67 @@
     <script src="/../js/chat.js"></script>
     <script src="/../js/peer.js"></script>
 
-<script>
+    <script>
+    var videos = document.querySelector('#videos');
 
-var peer = new Peer({key: '8l0ph78p5vcxr'});
+    window.onload = function() {
+        this.disabled = true;
 
-peer.on('open', function(id) {
-var id = "123";
-  console.log('My peer ID is: ' + id);
-});
+        var role = 'Audience';
 
-var destination_peer_id = $('#peer-id').val();
-var conn = peer.connect(destination_peer_id);
-var call;
+        window.connection = new RTCMultiConnection();
 
-peer.on('open', function() {
-    console.log("Open");
-});
+        // dont-override-session allows you force RTCMultiConnection
+        // to not override default session of participants;
+        // by default, session is always overridden and set to the session coming from initiator!
+        connection.dontOverrideSession = true;
 
-peer.on('connection', function(conn) {
-    console.log("A peer has connected!");
-    console.log(conn);
-});
+        connection.session = {
+            audio: true,
+            video: true,
+            oneway: role == 'Audience'
+        };
 
-peer.on('call', function(call) {
-  console.log("The class is calling you!");
-  console.log(call);
+        connection.onstream = function(e) {
+            videos.appendChild(e.mediaElement);
 
-  call.answer(window.localStream);
-  console.log("Answered call!");
+            if (e.type == 'remote') {
+                // because "viewer" joined room as "oneway:true"
+                // initiator will NEVER share participants
+                // to manually ask for participants;
+                // call "askToShareParticipants" method.
+                connection.askToShareParticipants();
+            }
 
-  step3(call);
-});
+            // if you're moderator
+            // if stream-type is 'remote'
+            // if target user is broadcaster!
+            if (connection.isInitiator && e.type == 'remote' && !e.session.oneway) {
+                // call "shareParticipants" to manually share participants with all connected users!
+                connection.shareParticipants({
+                    dontShareWith: e.userid
+                });
+            }
+        };
 
-function step3 (call) {
-      // Hang up on an existing call if present
-      if (window.existingCall) {
-        window.existingCall.close();
-      }
+        connection.onNewSession = function(session) {
+            if (role == 'Audience') {
+                session.join({
+                    oneway: true
+                });
+            } else {
+                session.join();
+            }
+        };
 
-      // Wait for stream on the call, then set peer video display
-      call.on('stream', function(stream){
-        $('#their-video').prop('src', URL.createObjectURL(stream));
-      });
-
-      window.existingCall = call;
-}
-
-</script>
+        if (role == 'Presenter')
+            connection.open({
+                sessionid: connection.channel,
+                captureUserMediaOnDemand: false
+            });
+        else
+            connection.connect(connection.channel);
+    };
+    </script>
 
 <%- include ../layout/footer.ejs %>

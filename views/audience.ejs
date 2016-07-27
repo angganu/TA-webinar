@@ -23,7 +23,7 @@
             <div class="line"></div>
             <p>Seminar Hari Ini..</p>
             <ul class="liststyle">
-            <% for(var i = 0; i < listbook.length; i++) { 
+            <% if(listbook.length >= 1){ for(var i = 0; i < listbook.length; i++) { 
                 if(listbook[i].status == 3){
                     butt = "<a href='/seminar/masuk/"+listbook[i].id_seminar+"' class='btn btn-mini btn-primary'>Masuk!</a>";
                 } else {
@@ -35,7 +35,7 @@
                     <%= listbook[i].waktu.toLocaleDateString()+" "+listbook[i].waktu.toLocaleTimeString() %><br>
                     <%= listbook[i].judul %>
                 </li>
-            <% } %>
+            <% } } %>
             </ul>
             <a href="/seminar/booked/<%= sesi.username %>" class="btn btn-success">Lihat Semua</a>
         </div>

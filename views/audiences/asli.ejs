@@ -1,0 +1,77 @@
+<%- include ../layout/header.ejs %>
+    <div class="col-sm-9 left-panel">
+        <div id="LoadContent" class="col-md-6">
+            <div class="slide" id="slide" style="border: 1px solid black; width: 480px; height: 350px;repeat: no-repeat; margin-top:10px"></div>
+        </div>
+        <div class="col-md-6">
+            <video id="their-video" autoplay style="margin-top:10px; width:100%;"></video>
+            <input type="hidden" id="peer-id" value="<%= data[0].key %>">
+        </div>
+        <div class="clear"><br></div>
+        <div class="col-md-12">
+            <div id="content" class="mess-content"></div>
+            <input type="hidden" id="name" value="<%= sesi.username %>">
+            <input type="button" id="send" class="btn btn-primary pull-right" value="Kirim">
+            <input type="text" id="field" class="form-control chat-input">
+        </div>
+    </div>
+    <div class="col-sm-3 right-panel">
+        <%- include ../seminar/menuaudience.ejs %>
+        
+    </div>
+
+    <script src="/../js/jquery-1.11.1.min.js"></script>
+    <script src="/../socket.io/socket.io.js"></script>
+    <script src="/../js/client_connect.js"></script>
+    <script src="/../js/chat.js"></script>
+    <script src="/../js/peer.js"></script>
+
+<script>
+
+var peer = new Peer({key: 'uubmvp0qrfx39pb9'});
+
+peer.on('open', function(id) {
+var id = "123";
+  console.log('My peer ID is: ' + id);
+});
+
+var destination_peer_id = $('#peer-id').val();
+var conn = peer.connect(destination_peer_id);
+var call;
+
+peer.on('open', function() {
+    console.log("Open");
+});
+
+peer.on('connection', function(conn) {
+    console.log("A peer has connected!");
+    console.log(conn);
+});
+
+peer.on('call', function(call) {
+  console.log("The class is calling you!");
+  console.log(call);
+
+  call.answer(window.localStream);
+  console.log("Answered call!");
+
+  step3(call);
+});
+
+function step3 (call) {
+      // Hang up on an existing call if present
+      if (window.existingCall) {
+        window.existingCall.close();
+      }
+
+      // Wait for stream on the call, then set peer video display
+      call.on('stream', function(stream){
+        $('#their-video').prop('src', URL.createObjectURL(stream));
+      });
+
+      window.existingCall = call;
+}
+
+</script>
+
+<%- include ../layout/footer.ejs %>

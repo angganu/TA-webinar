@@ -1,6 +1,22 @@
 <%- include ../layout/header.ejs %>
+
+    <style>
+    audio,
+    video {
+        -moz-transition: all 1s ease;
+        -ms-transition: all 1s ease;
+        -o-transition: all 1s ease;
+        -webkit-transition: all 1s ease;
+        transition: all 1s ease;
+        vertical-align: top;
+    }
+    </style>
+
+    <script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
+    <script src="//cdn.webrtc-experiment.com/firebase.js"></script>
+
     <div class="col-sm-9 left-panel">
-    	<div id="LoadContent" class="col-md-6">
+        <div id="LoadContent" class="col-md-6">
             <div class="slide" id="slide" style="border: 1px solid black; width: 100%; height: 350px;repeat: no-repeat; margin-top:10px; margin-bottom: 5px;"></div>
             <input type="hidden" id="docId" value="<%= data[0].id_seminar %>">
             <input type="hidden" id="docKey" value="<%= data[0].key %>">
@@ -8,7 +24,7 @@
             <input type="button" id="next" class="btn btn-default" value="NEXT">
         </div>
         <div class="col-md-6">
-            <video id="my-video" autoplay style="margin-top:10px; width:100%;"></video>
+            <div id="videos"></div>
         </div>
         <div class="clear"><br></div>
         <div class="col-md-6">
@@ -43,71 +59,68 @@
     <script src="/../socket.io/socket.io.js"></script>
     <script src="/../js/show.js"></script>
     <script src="/../js/chat.js"></script>
-    <script src="/../js/peer.js"></script>
 
-<script>
-var dockey = $('#docKey').val();
-navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+    <script>
+    var videos = document.querySelector('#videos');
 
-// var peer = new Peer({key: '8l0ph78p5vcxr', debug:2});
-var peer = new Peer(dockey, {key: '8l0ph78p5vcxr'});
-var connections = [];
-var conn;
-var call;
+    window.onload = function() {
+        this.disabled = true;
 
-peer.on('open', function(id) {
-    // console.log('My peer ID is: ' + id);
-    // $('#class-key').val(id);
+        var role = 'Presenter';
 
-    navigator.getUserMedia({
-        audio: true,
-        video: true,
-        }, function(stream){
-        // Set your video displays
-        $('#my-video').prop('src', URL.createObjectURL(stream));
-        window.localStream = stream;
-        }, function(error) {
-        alert('Something went wrong. (error code ' + error.code + ')');
-        return;
-    });
+        window.connection = new RTCMultiConnection();
 
-});
+        // dont-override-session allows you force RTCMultiConnection
+        // to not override default session of participants;
+        // by default, session is always overridden and set to the session coming from initiator!
+        connection.dontOverrideSession = true;
 
-peer.on('connection', function(conn) {
-    console.log("A peer has connected!");
-    console.log(conn);
-    conn = peer.connect(conn.peer);
+        connection.session = {
+            audio: true,
+            video: true,
+            oneway: role == 'Audience'
+        };
 
-    // Add peer to list of connections
-    connections.push(conn);
+        connection.onstream = function(e) {
+            videos.appendChild(e.mediaElement);
 
-    call = peer.call(conn.peer,
-    window.localStream);
-});
+            if (e.type == 'remote') {
+                // because "viewer" joined room as "oneway:true"
+                // initiator will NEVER share participants
+                // to manually ask for participants;
+                // call "askToShareParticipants" method.
+                connection.askToShareParticipants();
+            }
 
+            // if you're moderator
+            // if stream-type is 'remote'
+            // if target user is broadcaster!
+            if (connection.isInitiator && e.type == 'remote' && !e.session.oneway) {
+                // call "shareParticipants" to manually share participants with all connected users!
+                connection.shareParticipants({
+                    dontShareWith: e.userid
+                });
+            }
+        };
 
-peer.on('error', function(err){
-      alert(err.message);
-});
+        connection.onNewSession = function(session) {
+            if (role == 'Audience') {
+                session.join({
+                    oneway: true
+                });
+            } else {
+                session.join();
+            }
+        };
 
-
-function announceToPeers(message){
-    for(var i = 0; i < connections.length; i++){
-        var c = connections[i];
-        c.send(message);
-    }
-}
-
-// Click handlers setup
-$(function(){
-      $('#chat-submit').click(function(event){
-            event.preventDefault();
-            announceToPeers($('#chat-input').val());
-            $('#chat-input').val("");
-      });
-});
-
-</script>
-
+        if (role == 'Presenter')
+            connection.open({
+                sessionid: connection.channel,
+                captureUserMediaOnDemand: false
+            });
+        else
+            connection.connect(connection.channel);
+    };
+    </script>
 
 <%- include ../layout/footer.ejs %>

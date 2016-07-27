@@ -17,10 +17,14 @@ exports.main = function(req, res){
 	                console.log("Error Selecting : %s ",err );
 	            } else {
 	            	waktu = new Date().toLocaleDateString();
-	            	time = waktu.split('/');
-	            	dd = time[1];
-		        	mm = time[0];
-		        	yy = time[2];
+	          //   	time = waktu.split('/');
+	          //   	dd = time[1];
+		        	// mm = time[0];
+		        	// yy = time[2];
+		        	time = waktu.split('-');
+	            	dd = time[2];
+		        	mm = time[1];
+		        	yy = time[0];
 	            	pad = "00";
 					day = pad.substr(0, pad.length - dd.length) + dd;
 					mon = pad.substr(0, pad.length - mm.length) + mm;
@@ -63,3 +67,5 @@ exports.booking = function(req,res){
 	    }
     });
 };
+
+

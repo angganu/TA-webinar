@@ -26,6 +26,7 @@ var seminar     = new seminar();
 var sesi;
 var app = express();
 var multipartMiddleware = multipart();
+var NodeIP    	= "103.236.201.158";
 var NodePort    = 80;
 var home        = require('./routes/home');
 // var userlog  = require('./routes/userlog');
@@ -36,7 +37,7 @@ var home        = require('./routes/home');
 // all environments
 app.configure(function(){
     app.set('port', process.env.PORT || NodePort);
-    app.set('ipadd', process.env.IP || "192.168.1.100");
+    app.set('ipadd', process.env.IP || NodeIP);
     app.set('views', path.join(__dirname, 'views'));
     app.set('view engine', 'ejs');
     // app.use(express.favicon());
@@ -159,7 +160,7 @@ app.get('/seminar/move/:id/:key/:index', function (req, res) {
                 return;
             }
             res.send({imgSrc : data.toString('base64')});
-            io.of('/seminar/audience/'+id).emit('move', {imgSrc: data.toString('base64')});
+            io.of('/seminar/'+id).emit('move', {imgSrc: data.toString('base64')});
         });
     });
 });
@@ -173,7 +174,7 @@ var io = socketio.listen(server);
 io.set('log level', 4);
 
 io.sockets.on('connection', function(socket){
-    socket.emit('message', { message: 'welcome to the chat'});
+    socket.emit('message', { message: 'Selamat Datang Di Website Seminar Online TIENS Group.'});
     socket.on('send', function(data){
         io.sockets.emit('message', data);
     });
